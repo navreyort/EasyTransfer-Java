@@ -2,13 +2,16 @@
 
 EasyTransfer by https://github.com/madsci1016 implemented in Java inspired by https://github.com/davidcranor/MCP2035 and http://matter.media.mit.edu/tools/details/fitsocket
 
-IMPORTANT!!
+## IMPORTANT!!
 The project is still in testing stage between java program and arduino sketch.
 Probably everything will be figured out by June 28, 2014 to make sure the communication works and it is easily extendable!
 Thanks for checking it out ;)
 
+# Prerequisite
+Eclipse: http://download.eclipse.org/eclipse/downloads/
+Arduino IDE: http://arduino.cc/en/main/software
+ 
 # Java Library dependencies:
-
 They are all included in the project
 
 Lombok - http://projectlombok.org/  
