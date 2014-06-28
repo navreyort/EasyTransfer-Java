@@ -54,7 +54,7 @@ public abstract class SerialTransmitData {
 					|| PrimitiveCheck.isBoolean(field.getType())){
 				try {
 					byte[] d = ByteArrayConversion.toByta(field.get(this));
-					//ArrayUtils.reverse(d);
+					ArrayUtils.reverse(d);
 					byteStream.write(d);
 				} catch (Throwable e) {
 					log.warning(e.getMessage());
@@ -84,6 +84,7 @@ public abstract class SerialTransmitData {
 
 		if(checkSum == data[data.length-1]){
 			int curIndex = DATA_START_INDEX;
+
 			for(Field field : this.getClass().getDeclaredFields()){
 				field.setAccessible(true);
 				try {

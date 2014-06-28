@@ -15,7 +15,10 @@ class SerialEventHandler {
     void run() ;
     void setup() ;
     void update() ;
-    
+    ~SerialEventHandler(){
+      delete inQueue;
+      delete outQueue;
+    };
   private:
      static boolean isSerialInitialized;
      boolean isIncomingComplete;
@@ -23,8 +26,8 @@ class SerialEventHandler {
      EasyTransfer ETOut;
      SerialSendData txData;
      SerialReceiveData rxData;
-     EventQueue<SerialReceiveData> inQueue;
-     EventQueue<SerialSendData> outQueue;
+     EventQueue<SerialReceiveData> *inQueue;
+     EventQueue<SerialSendData> *outQueue;
 };
 
 boolean SerialEventHandler::isSerialInitialized = false;
@@ -37,8 +40,11 @@ inline void SerialEventHandler::setup() {
     SerialEventHandler::isSerialInitialized = true;
   }
   
-  this->inQueue.setQueueID(0);
-  this->outQueue.setQueueID(1);
+  this->inQueue = new EventQueue<SerialReceiveData>();
+  this->outQueue = new EventQueue<SerialSendData>();
+  
+  this->inQueue->setQueueID(0);
+  this->outQueue->setQueueID(1);
 }
 
 inline void SerialEventHandler::update() {
@@ -47,25 +53,29 @@ inline void SerialEventHandler::update() {
 }
 
 inline void SerialEventHandler::event(SerialSendData data)  {
-  this->outQueue.enqueueEvent(data);
+  SerialSendData *d = (SerialSendData*)malloc(sizeof(SerialSendData));
+  memcpy(d,&data,sizeof(SerialSendData));
+  this->outQueue->enqueueEvent(d);
 }
 
 inline void SerialEventHandler::incomingMessage() {
   if(ETIn.receiveData()){
-    this->inQueue.enqueueEvent(rxData);
+    SerialReceiveData *data = (SerialReceiveData*)malloc(sizeof(SerialReceiveData));
+    memcpy(data,&rxData,sizeof(SerialReceiveData));
+    this->inQueue->enqueueEvent(data);
   }
 }
 
 inline void SerialEventHandler::sendMessage() {
-  if(!this->outQueue.isEmpty()){
-    outQueue.dequeueEvent(&txData);
+  if(!this->outQueue->isEmpty()){
+    this->outQueue->dequeueEvent(&txData);
     ETOut.sendData();
   }
 }
 
 inline boolean SerialEventHandler::getIncomingEvent(SerialReceiveData *data) {
-  if(!this->inQueue.isEmpty() || this->inQueue.getNumEvents() > 0){
-    this->inQueue.dequeueEvent(data);
+  if(!this->inQueue->isEmpty() || this->inQueue->getNumEvents() > 0){
+    this->inQueue->dequeueEvent(data);
     return true;
   }
   return false;

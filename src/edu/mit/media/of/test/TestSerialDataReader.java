@@ -19,14 +19,6 @@ public class TestSerialDataReader extends SerialDataReader {
 	@Override
 	public void processInput(ByteBuffer message) {
 		super.processInput(message);
-		
-		//XXX Do stuff with RxData here. Probably want connectionManager to access other objects		
-		System.out.println("Byte: "+((RxData)this.rxData).getB());
-		System.out.println("Short: "+((RxData)this.rxData).getS());
-		System.out.println("Int: "+((RxData)this.rxData).getI());
-		System.out.println("Long: "+((RxData)this.rxData).getL());
-		System.out.println("Char: "+((RxData)this.rxData).getC());
-		System.out.println("Boolean: "+((RxData)this.rxData).getBo());
-		System.out.println("================================");
+		this.connectionManager.dumpMessage((RxData) this.rxData);		
 	}
 }

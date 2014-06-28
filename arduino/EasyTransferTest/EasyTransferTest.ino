@@ -1,45 +1,33 @@
+
 #include "SerialEventHandler.h"
 
 SerialEventHandler serialEventHandler;
-SerialSendData data;
-
+//SerialSendData sendData;
 void setup(){
   serialEventHandler.setup();
-  pinMode(13,OUTPUT);
-  digitalWrite(13,LOW);
+//  pinMode(13,OUTPUT);
+//  digitalWrite(13,LOW);
+//  sendData.b=10;
+//  sendData.s=20;
+//  sendData.i=30;
+//  sendData.bo=true;
+//  sendData.c='A';
+//  sendData.l=1000;
 }
 
 void loop(){
   serialEventHandler.update();
   handleIncomingSerial();
-  
-  //XXX Send Example
-/*
-  data.b = 10;
-  data.s = 100;
-  data.i = 1000;
-  data.l = 10000;
-  data.c = 'j';
-  data.bo = true;
-  serialEventHandler.event(data);
-*/
+//  serialEventHandler.event(sendData);
+//  delay(5000);
 }
 
 void handleIncomingSerial(){
-  
   static SerialReceiveData receiveData;
-    
   if(serialEventHandler.getIncomingEvent(&receiveData)){
    //XXX Receive Example
-    
     SerialSendData sendData;
-    sendData.b = receiveData.b;
-    sendData.s = receiveData.s;
-    sendData.i = receiveData.i;
-    sendData.l = receiveData.l;
-    sendData.c = receiveData.c;
-    sendData.bo = receiveData.bo;
+    memcpy(&sendData,&receiveData,sizeof(SerialSendData));
     serialEventHandler.event(sendData);
-    
   }
 }

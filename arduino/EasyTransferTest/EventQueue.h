@@ -6,19 +6,18 @@
 template<typename T>
 class EventQueue {
   public:
-    static const int EVQUEUE_SIZE = 50;
     EventQueue():queueID(0){init();};
     boolean isEmpty() ;
     boolean isFull() ;
     int getNumEvents() ;
-    boolean enqueueEvent(T data) ;
+    boolean enqueueEvent(T *data) ;
     boolean dequeueEvent(T *data) ;
     boolean isLocked() ;
     void setQueueID(byte id) ;
     byte getQueueID() ;
     
 private:
-     T eventQueue[EVQUEUE_SIZE];
+     T *events[kEventQueueSize];
      int eventQueueHead;
      int eventQueueTail;
      int numEvents;
@@ -37,11 +36,12 @@ inline void EventQueue<T>::init() {
   int i;
   
   this->eventQueueHead = 0;
-  this->eventQueueTail = EVQUEUE_SIZE - 1;
+  this->eventQueueTail = kEventQueueSize - 1;
   this->numEvents = 0;
   
-//  for (i = 0; i < EVQUEUE_SIZE; i++) {
-//    eventQueue[i] = sizeof(T);
+//  for (i = 0; i < kEventQueueSize; i++) {
+//    events[i] = (T*) malloc(sizeof(T));
+//    memset(events+i,0,sizeof(T));
 //  }
   
   this->lock = false;
@@ -54,7 +54,7 @@ inline boolean EventQueue<T>::isEmpty() {
 
 template<typename T>
 inline boolean EventQueue<T>::isFull() {
-  return (this->eventQueueHead == this->eventQueueTail);
+  return (this->eventQueueHead == this->eventQueueTail) && (this->numEvents >= kEventQueueSize);
 }
 
 template<typename T>
@@ -63,8 +63,9 @@ inline int EventQueue<T>::getNumEvents() {
 }
 
 template<typename T>
-inline boolean EventQueue<T>::enqueueEvent(T data) {
+inline boolean EventQueue<T>::enqueueEvent(T *data) {
   this->lock = true;
+  
   if (this->isFull()) {
     // log the queue full error
     #ifdef kDebug
@@ -74,15 +75,16 @@ inline boolean EventQueue<T>::enqueueEvent(T data) {
   }
 
   // store the event
-  this->eventQueue[this->eventQueueHead] = data;
+  this->events[this->eventQueueHead] = data;
     
   // update queue head value
-  this->eventQueueHead = (this->eventQueueHead + 1) % EVQUEUE_SIZE;
+  this->eventQueueHead = (this->eventQueueHead + 1) % kEventQueueSize;
 
   // update number of events in queue
   this->numEvents++;
  
   this->lock = false;
+  
   return true;
 }
 
@@ -94,12 +96,14 @@ inline boolean EventQueue<T>::dequeueEvent(T *data) {
     return false;
   }
 
-  this->eventQueueTail = (this->eventQueueTail + 1) % EVQUEUE_SIZE;
+  this->eventQueueTail = (this->eventQueueTail + 1) % kEventQueueSize;
 
   // store event code and event parameter
   // into the user-supplied variables
-  *data = this->eventQueue[this->eventQueueTail];
-
+  memcpy(data,this->events[this->eventQueueTail],sizeof(T));
+  free(this->events[this->eventQueueTail]);
+  this->events[this->eventQueueTail] = NULL;
+  
   // update number of events in queue
   this->numEvents--;
   

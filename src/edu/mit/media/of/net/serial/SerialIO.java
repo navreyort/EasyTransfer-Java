@@ -48,10 +48,6 @@ public final class SerialIO extends AbstractClientModel<ByteBuffer> implements S
 				byte[] otherData = this.serialPort.readBytes(this.readHandler.getPacketSize()-this.readHandler.getHeaderSize());
 				System.arraycopy(dataCheck, 0, data, 0, dataCheck.length);
 				System.arraycopy(otherData, 0, data, dataCheck.length, otherData.length);
-				for (int i = 0; i < data.length; i++) {
-					System.out.print(data[i]);System.out.print(" ");
-				}
-				System.out.println();
 				return ByteBuffer.wrap(data);
 			}
 			else {
